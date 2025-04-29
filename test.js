@@ -23,29 +23,27 @@ router.post('/', auth, async (req, res, next) => {
     catch (error) {
         next(error);
     }
-    
-})
+
+});
 
 // select (GET)
-router.get('/', auth, async(req, res, next) => {
+router.get('/getTable', auth, async(req, res, next) => {
 
     try {
-        const todo = await Todo.find({user: req.user.id, finished: false});
+        const table = await Todo.find({user: req.user.id, finished: false});
 
-        if(!todo) {
+        if(!table) {
             return res.status(400).json({success: false, msg: 'Something error happened'})
         }
 
         res.status(200).json({
             success: true,
-            todo: toDO,
+            table: table,
             msg: "success"
         })
     } catch(error) {
         next(error); 
     }
-
-    
 }) 
 
 // update (put)
@@ -73,7 +71,7 @@ router.put("/", async(req, res, next) => {
 
 // method delete
 
-/ example DELETE http://localhost:3000/todos/{id}/{categoryId}
+// // example DELETE http://localhost:3000/todos/{id}/{categoryId}
 
 router.delete('/:id/:categoryId', async(req, res, next) => {
     try {
