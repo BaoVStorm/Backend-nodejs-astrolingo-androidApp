@@ -39,7 +39,7 @@ app.use(express.json({}));
 // Middleware đọc form-urlencoded từ req.body
 app.use(express.urlencoded({ extended: true }));
 
-// Đăng ký route http://localhost:3000/api/users/register
+// Đăng ký route http://localhost:3000/api/auth/register
 app.use("/api/auth", require("./routes/users"));
 
 // Chạy server
