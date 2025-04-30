@@ -10,7 +10,7 @@ router.post('/register', userController.register);
 router.post('/login', userController.login);
 
 // authorization (chỉ có người dùng đã đăng nhập mới có quyền truy cập)
-router.get('/', user_jwt, userController.getCurrentUser);
+router.get('/verify', user_jwt, userController.getCurrentUser);
 
 // Google Auth
 router.post('/googleauth', userController.googleAuth);

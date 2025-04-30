@@ -24,6 +24,12 @@ module.exports = async function (req, res, next) {
                 next();
             }
         })
+
+        // return res.status(200).json({
+        //     msg: 'Server error',
+        //     user: req.user
+        // });
+
     } catch(err) {
         console.log('Middleware error: ' + err);
         res.status(500).json({

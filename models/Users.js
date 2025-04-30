@@ -85,9 +85,15 @@ const userSchema = new mongoose.Schema(
       enum: ['local', 'google'],
       required: true,
     },
+    score: {
+      type: Number,
+    },
     photo_url: {
       type: String,   // Lưu URL ảnh đại diện của Google (nếu có)
     },
+    token: {
+      type: String,
+    } 
   },
   {
     timestamps: true, // Tự động tạo createdAt & updatedAt
