@@ -42,6 +42,10 @@ app.use(express.urlencoded({ extended: true }));
 // Đăng ký route http://localhost:3000/api/auth/register
 app.use("/api/auth", require("./routes/users"));
 
+// Xử lý gửi OTP
+app.use("/api/otp", require("./routes/otp"));
+app.use("/api/email_verification", require("./routes/email_verification"));
+
 // Chạy server
 app.listen(PORT, 
     console.log(`Server running on port: ${PORT}`.blue.underline.bold)
