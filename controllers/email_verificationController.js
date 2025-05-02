@@ -1,5 +1,6 @@
 const Users = require('../models/Users');
 const {sendOTP, verifyOTP, deleteOTP} = require('../controllers/OTPController');
+const { verify } = require('jsonwebtoken');
 
 const verifyUserEmail = async({email, otp}) => {
     try{
@@ -7,6 +8,9 @@ const verifyUserEmail = async({email, otp}) => {
         if(!validOTP) {
             throw Error("Invalid code passed. Check your inbox.");
         }
+
+        // update user.verify -> true
+        await Users.updateOne({email}, {verified: true});
 
         await deleteOTP(email);
         return;
@@ -27,13 +31,13 @@ const sendVerificationOTPEmail = async(email) => {
             email,
             subject: "ASTROLINGO: Email Verification",
             message: "Verify your email with the code below.",
-            duration: 10,
+            duration: 15,
         }
         
         const createOTP = await sendOTP(otpDetails);
         return createOTP;
     } catch(error) {
-
+        throw error;
     }
 };
 

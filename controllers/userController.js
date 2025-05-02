@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const Users = require('../models/Users');
 const bcryptjs = require('bcryptjs');
-
+const {sendVerificationOTPEmail, verifyUserEmail} = require('./email_verificationController');
+const { use } = require('../routes/email_verification');
 
 // Đăng ký
 exports.register = async (req, res, next) => {  
@@ -53,6 +54,9 @@ exports.register = async (req, res, next) => {
 
     await user.save();
 
+    // verification account
+    await sendVerificationOTPEmail(email);
+
     const payload = {
       user: {
         id: user.id
@@ -70,7 +74,7 @@ exports.register = async (req, res, next) => {
 
       return res.status(200).json({
         success: true,
-        msg: "Register User successfully!",
+        msg: "Register User successfully! Need verify Email",
         user_id: user.id,
         token: token,
         user: user
@@ -120,6 +124,17 @@ exports.login = async (req, res, next) => {
         });
       }
  
+    }
+
+    // check verify account
+    if(!user.verified) {
+      return res.status(400).json({
+        success: false,
+        error_server: false,
+        verified: false,
+        email: user.email,
+        msg: "Email hasn't been verified yet. Check your inbox!"
+      });
     }
 
     const isMatch = await bcryptjs.compare(password, user.password_hash)
@@ -179,9 +194,17 @@ exports.getCurrentUser = async (req, res, next) => {
         if (!user) {
           return res.status(404).json({
               success: false,
-              msg: 'User not found'
+              msg: 'User not found.'
           });
         } 
+
+        // check verify account
+        if(!user.verified) {
+          return res.status(400).json({
+            success: false,
+            msg: "Email hasn't been verified yet."
+          });
+        }
 
         res.status(200).json({
             success: true,
@@ -223,7 +246,8 @@ exports.googleAuth = async (req, res, next) => {
         user.full_name = full_name;
         user.photo_url = photo_url;
         user.provider = 'google';
-  
+        user.verified = true;
+
         isNewAccount = true;
   
         await user.save();

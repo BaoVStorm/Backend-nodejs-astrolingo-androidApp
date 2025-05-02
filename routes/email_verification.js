@@ -36,9 +36,14 @@ router.post("/", async(req, res) => {
 
         const createEmailVerOTP = await sendVerificationOTPEmail(email);
 
-        return res.status(200).json(createEmailVerOTP);
+        return res.status(200).json({
+            "msg": "Resend Successfully, Please Check your email!",
+            "createEmailVerOTP": createEmailVerOTP,
+        });
     } catch(error) {
-        return res.status(400).json(error.message);
+        return res.status(400).json({
+            "msg": error.message,
+        });
     }
 })
 
