@@ -23,7 +23,6 @@ router.post("/verify", async(req, res) => {
             success: false,
             "msg": error.message,
         });
-
     }
 });
 
