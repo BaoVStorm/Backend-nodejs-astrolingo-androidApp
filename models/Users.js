@@ -87,6 +87,7 @@ const userSchema = new mongoose.Schema(
     },
     score: {
       type: Number,
+      default: 0,
     },
     photo_url: {
       type: String,   // Lưu URL ảnh đại diện của Google (nếu có)
@@ -96,7 +97,7 @@ const userSchema = new mongoose.Schema(
     } ,
     verified: {
       type: Boolean,
-      default: false
+      default: false,
     }
   },
   {
