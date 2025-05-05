@@ -15,4 +15,7 @@ router.get('/verify', user_jwt, userController.getCurrentUser);
 // Google Auth
 router.post('/googleauth', userController.googleAuth);
 
+// log out
+router.get('/logout', user_jwt, userController.logout);
+
 module.exports = router;

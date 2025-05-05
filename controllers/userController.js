@@ -290,3 +290,27 @@ exports.googleAuth = async (req, res, next) => {
       });
     }
 };
+
+exports.logout = async (req, res) => {
+  try {
+      const user = await Users.findById(req.user.id);
+
+      // Nếu không tìm thấy người dùng
+      if (!user) {
+        return res.status(404).json({
+            success: false,
+            msg: 'User not found or already logged out.'
+        });
+      } 
+
+      return res.status(200).json({ success: true, msg: 'Logged out successfully' });
+
+  } catch(err) {
+      console.log(err.message);
+      res.status(500).json(
+      {
+          success: false,
+          msg: 'Server Error'
+      });
+  }
+};
