@@ -1,6 +1,5 @@
 const Users = require('../models/Users');
 const {sendOTP, verifyOTP, deleteOTP} = require('../controllers/OTPController');
-const { verify } = require('jsonwebtoken');
 
 const verifyUserEmail = async({email, otp}) => {
     try{
