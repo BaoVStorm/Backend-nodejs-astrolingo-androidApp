@@ -18,4 +18,9 @@ router.post('/googleauth', userController.googleAuth);
 // log out
 router.get('/logout', user_jwt, userController.logout);
 
+// ----------- function
+// Lấy top 5 user theo score giảm dần
+router.get('/getTopScore', user_jwt, userController.getTopUsersByScore);
+
+
 module.exports = router;

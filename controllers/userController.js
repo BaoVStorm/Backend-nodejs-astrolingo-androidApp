@@ -314,3 +314,79 @@ exports.logout = async (req, res) => {
       });
   }
 };
+
+// -------------- query
+
+// Lấy tất cả user
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await Users.find(); // Truy vấn tất cả user
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Lấy 1 user theo ID
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await Users.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Tạo mới 1 user
+exports.createUser = async (req, res) => {
+  const user = new Users({
+    name: req.body.name,
+    email: req.body.email,
+    age: req.body.age
+  });
+  try {
+    const newUser = await user.save();
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// Cập nhật 1 user
+exports.updateUser = async (req, res) => {
+  try {
+    const updatedUser = await Users.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// Xoá 1 user
+exports.deleteUser = async (req, res) => {
+  try {
+    const deletedUser = await Users.findByIdAndDelete(req.params.id);
+    if (!deletedUser) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ------------- function
+
+// Lấy top 5 user theo score giảm dần
+exports.getTopUsersByScore = async (req, res) => {
+  try {
+    const topUsers = await Users.find().sort({ score: -1 }).limit(5);
+    res.json(topUsers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
