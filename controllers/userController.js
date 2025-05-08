@@ -381,10 +381,10 @@ exports.deleteUser = async (req, res) => {
 
 // ------------- function
 
-// Lấy top 5 user theo score giảm dần
+// Lấy top 6 user theo score giảm dần
 exports.getTopUsersByScore = async (req, res) => {
   try {
-    const topUsers = await Users.find().sort({ score: -1 }).limit(5);
+    const topUsers = await Users.find().sort({ score: -1 }).limit(6);
     res.json(topUsers);
   } catch (err) {
     res.status(500).json({ message: err.message });
