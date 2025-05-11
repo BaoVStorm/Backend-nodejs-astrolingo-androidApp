@@ -10,23 +10,28 @@ const Questions = require('../models/Questions');
 // ------------- function
 
 // lấy danh sách các test đang có trong database
-// exports.getListTest = async (req, res) => {
-//   try {
-//     const {test_id} = req.query;
+exports.getListTest = async (req, res) => {
+  try {
+    const {is_full_test} = req.query;
 
-//     if(!test_id)
-//       res.status(400).json({ message: "need test_id to get Test Detail !" });
+    let test;
 
-//     const test = await Tests.findOne({test_id: test_id}); 
+    if(is_full_test == "true")
+      test = await Tests.find({is_full_test: true}); 
+    else
+    if(is_full_test == "false")
+      test = await Tests.find({is_full_test: false}); 
+    else
+      test = await Tests.find();
 
-//     if(!test)
-//       res.status(400).json({ message: "This test is not exist!" });
+    if(!test)
+      res.status(400).json({ message: "This test is not exist!" });
 
-//     res.json(test);
-//   } catch(err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// }
+    res.json(test);
+  } catch(err) {
+    res.status(500).json({ message: err.message });
+  }
+}
 
 // lấy thông tin test
 exports.getTest = async (req, res) => {

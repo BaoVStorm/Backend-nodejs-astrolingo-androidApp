@@ -5,18 +5,15 @@ const user_jwt = require('../middleware/user_jwt');
 // - table init
 const testController = require('../controllers/testController');
 
-
-
 // ----------- function
 // lấy tất cả các test trong database
-// router.get('/getListTest', user_jwt, testController.getPart);
+router.get('/getListTest', user_jwt, testController.getListTest);
 
 // lấy thông tin test
 router.get('/getTest', user_jwt, testController.getTest);
 
 // lấy thông tin part
 router.get('/getPart', user_jwt, testController.getPart);
-
 
 // lấy thông tin cụ thể của test (nhiều nhóm câu hỏi)
 router.get('/getListGroupQuestion', user_jwt, testController.getListGroupQuestion);
