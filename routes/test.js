@@ -15,6 +15,9 @@ router.get('/getTest', user_jwt, testController.getTest);
 // lấy thông tin part
 router.get('/getPart', user_jwt, testController.getPart);
 
+// lấy danh sách các part
+router.get('/getListPart', user_jwt, testController.getListPart);
+
 // lấy thông tin cụ thể của test (nhiều nhóm câu hỏi)
 router.get('/getListGroupQuestion', user_jwt, testController.getListGroupQuestion);
 

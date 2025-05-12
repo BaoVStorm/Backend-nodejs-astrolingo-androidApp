@@ -71,6 +71,20 @@ exports.getPart = async (req, res) => {
   }
 }
 
+// lấy danh sách các part
+exports.getListPart = async (req, res) => {
+  try {
+    const list_parts = await Parts.find(); 
+
+    if(!list_parts)
+      res.status(400).json({ message: "This part is not exist!"});
+
+    res.json(list_parts);
+  } catch(err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 // lấy danh sách thông tin cụ thể của test (nhiều nhóm câu hỏi)
 exports.getListGroupQuestion = async (req, res) => {
   try {
