@@ -98,7 +98,20 @@ exports.getListGroupQuestion = async (req, res) => {
     if(!list_groupQuestions)
       res.status(400).json({ message: `no groupQuestion is belong to test_id: ${test_id}`});
 
-    res.json(list_groupQuestions);
+    // Duyệt từng group question để lấy thông tin bổ sung
+    const enhancedGroupQuestions = await Promise.all(
+      list_groupQuestions.map(async (group) => {
+        const questions = await Questions.find({ group_question_id: group.group_question_id }).sort({ question_id: 1 });
+
+        return {
+          ...group.toObject(),
+          first_question_id: questions[0]?.question_id || null,
+          question_count: questions.length
+        };
+      })
+    );
+
+    res.json(enhancedGroupQuestions);
   } catch(err) {
     res.status(500).json({ message: err.message });
   }
