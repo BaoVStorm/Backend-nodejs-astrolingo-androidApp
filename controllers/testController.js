@@ -17,12 +17,12 @@ exports.getListTest = async (req, res) => {
     let test;
 
     if(is_full_test == "true")
-      test = await Tests.find({is_full_test: true}); 
+      test = await Tests.find({is_full_test: true}).sort({test_id: 1}); 
     else
     if(is_full_test == "false")
-      test = await Tests.find({is_full_test: false}); 
+      test = await Tests.find({is_full_test: false}).sort({test_id: 1}); 
     else
-      test = await Tests.find();
+      test = await Tests.find().sort({test_id: 1});
 
     if(!test)
       res.status(400).json({ message: "This test is not exist!" });
@@ -74,7 +74,7 @@ exports.getPart = async (req, res) => {
 // lấy danh sách các part
 exports.getListPart = async (req, res) => {
   try {
-    const list_parts = await Parts.find(); 
+    const list_parts = await Parts.find().sort({part_id: 1}); 
 
     if(!list_parts)
       res.status(400).json({ message: "This part is not exist!"});
@@ -93,9 +93,30 @@ exports.getListGroupQuestion = async (req, res) => {
     if(!test_id)
       res.status(400).json({ message: "need test_id to get list group questions !" });
 
-    const list_groupQuestions = await Group_Questions.find({test_id: test_id}); 
+    // const list_groupQuestions = await Group_Questions.find({test_id: test_id}).sort({ group_question_id: 1 }); 
+    const list_groupQuestions = await Group_Questions.aggregate([
+      {
+        $match: { test_id: Number(test_id) } // hoặc test_id biến nếu bạn truyền từ ngoài
+      },
+      {
+        $addFields: {
+          sort_number: {
+            $toInt: {
+              $arrayElemAt: [
+                { $split: ["$group_question_id", "_"] },
+                2 // lấy phần tử thứ 3 sau split "_"
+              ]
+            }
+          }
+        }
+      },
+      {
+        $sort: { part_id: 1, sort_number: 1 }
+      }
+    ]);
 
-    if(!list_groupQuestions)
+    
+    if(!list_groupQuestions || list_groupQuestions.length === 0)
       res.status(400).json({ message: `no groupQuestion is belong to test_id: ${test_id}`});
 
     // Duyệt từng group question để lấy thông tin bổ sung
@@ -104,7 +125,7 @@ exports.getListGroupQuestion = async (req, res) => {
         const questions = await Questions.find({ group_question_id: group.group_question_id }).sort({ question_id: 1 });
 
         return {
-          ...group.toObject(),
+          ...group,
           first_question_id: questions[0]?.question_id || null,
           question_count: questions.length
         };
@@ -144,8 +165,38 @@ exports.getListQuestion = async (req, res) => {
     if(!group_question_id)
       res.status(400).json({ message: "need group_question_id to get list questions !" });
     
-    const list_Questions = await Questions.find({group_question_id: group_question_id}); 
-
+    // const list_Questions = await Questions.find({group_question_id: group_question_id}).sort({question_id: 1}); 
+    const list_Questions = await Questions.aggregate([
+      {
+        $match: { group_question_id: group_question_id }
+      },
+      {
+        $addFields: {
+          sort_number: {
+            $toInt: {
+              $arrayElemAt: [
+                {
+                  $getField: {
+                    field: "captures",
+                    input: {
+                      $regexFind: {
+                        input: "$question_id",
+                        regex: /(\d+)$/
+                      }
+                    }
+                  }
+                },
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $sort: { sort_number: 1 }
+      }
+    ]);
+    
     if(!list_Questions)
       res.status(400).json({ message: `no Questions is belong to group_question_id: ${group_question_id}`});
 
