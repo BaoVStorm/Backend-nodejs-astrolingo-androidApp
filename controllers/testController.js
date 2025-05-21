@@ -224,3 +224,51 @@ exports.getListQuestion = async (req, res) => {
       res.status(500).json({ message: err.message });
     }
   }
+
+  // lấy tất cả câu hỏi của 1 test
+  exports.getListQuestionByTestId = async (req, res) => {
+  try {
+    const { test_id } = req.query;
+
+    if (!test_id)
+      return res.status(400).json({ message: "need test_id to get list questions!" });
+
+    const list_Questions = await Questions.aggregate([
+      {
+        // Tách "test1_1" thành ["test1", "1"]
+        $addFields: {
+          split_id: { $split: ["$question_id", "_"] }
+        }
+      },
+      {
+        // Gán test_prefix = "test1", sort_number = 1
+        $addFields: {
+          test_prefix: { $arrayElemAt: ["$split_id", 0] },
+          sort_number: { $toInt: { $arrayElemAt: ["$split_id", 1] } }
+        }
+      },
+      {
+        // So sánh phần "test1" với đầu vào
+        $match: { test_prefix: "test" + test_id }
+      },
+      {
+        $sort: { sort_number: 1 }
+      },
+      {
+        $project: {
+          split_id: 0, // ẩn trường tạm
+          test_prefix: 0,
+          sort_number: 0
+        }
+      }
+    ]);
+
+    if (!list_Questions || list_Questions.length === 0)
+      return res.status(404).json({ message: `No questions found for test_id: ${test_id}` });
+
+    res.json(list_Questions);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

@@ -30,5 +30,9 @@ router.get('/getListQuestion', user_jwt, testController.getListQuestion);
     // lấy thông tin cụ thể của test (nhiều nhóm câu hỏi)
     router.get('/getQuestionDetail', user_jwt, testController.getQuestionDetail);
 
+    // lấy tất cả câu hỏi của 1 test
+    router.get('/getListQuestionByTestId', user_jwt, testController.getListQuestionByTestId);
+
+
 
 module.exports = router;
