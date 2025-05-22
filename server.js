@@ -44,9 +44,11 @@ app.use("/api/auth", require("./routes/users"));
 
 // Xử lý gửi OTP
 app.use("/api/otp", require("./routes/otp"));
+
 app.use("/api/email_verification", require("./routes/email_verification"));
 app.use("/api/forgot_password", require("./routes/forgot_password"));
 app.use("/api/test", require("./routes/test"));
+app.use("/api/certificate", require("./routes/certificates"));
 
 // Chạy server
 app.listen(PORT, 

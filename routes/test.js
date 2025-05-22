@@ -33,6 +33,4 @@ router.get('/getListQuestion', user_jwt, testController.getListQuestion);
     // lấy tất cả câu hỏi của 1 test
     router.get('/getListQuestionByTestId', user_jwt, testController.getListQuestionByTestId);
 
-
-
 module.exports = router;
