@@ -1,6 +1,7 @@
 // init table
 const mongoose = require('mongoose');
 const Certificate = require('../models/Certificates');
+const UserAnswer = require('../models/UserAnswers');
 
 // lấy danh sách các test đang có trong database
 exports.addCertificate = async (req, res) => {
@@ -43,4 +44,45 @@ exports.addCertificate = async (req, res) => {
     console.error("Add certificate error:", err);
     return res.status(500).json({ msg: err.message });
   }
+};
+
+
+exports.addUserAnswers = async (req, res) => {
+    try {
+        const { user_id, test_id, answers } = req.body;
+
+        if (!user_id || !test_id || !Array.isArray(answers)) {
+            return res.status(400).json({ msg: "Missing or invalid parameters" });
+        }
+
+        const objectIdUser = new mongoose.Types.ObjectId(user_id);
+
+        // 🧹 Xoá toàn bộ câu trả lời cũ của user cho bài test này
+        await UserAnswer.deleteMany({
+            user_id: objectIdUser,
+            test_id: test_id
+        });
+
+        const answerDocs = answers.map((ans) => ({
+            user_id: objectIdUser,
+            test_id: test_id,
+            selected_answer: ans.selected_answer,
+            is_wrong: ans.is_wrong,
+            answered_at: new Date(), // hoặc có thể để mặc định
+            question_number: ans.question_number,
+            question_id: ans.question_id,
+            group_question_id: ans.group_question_id,
+            part_id: ans.part_id,
+        }));
+
+        const insertedAnswers = await UserAnswer.insertMany(answerDocs);
+
+        return res.status(201).json({
+            msg: "Answers saved successfully",
+            data: insertedAnswers,
+        });
+    } catch (err) {
+        console.error("Error saving answers:", err);
+        return res.status(500).json({ msg: "Server error", error: err.message });
+    }
 };

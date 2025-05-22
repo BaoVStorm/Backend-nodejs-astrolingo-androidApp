@@ -19,12 +19,12 @@ const testSchema = new mongoose.Schema(
         default: 7
     },
     question_number: {
-        type: Number,
-        default: 200
+      type: Number,
+      default: 200
     },
     test_time: {
-        type: Number,
-        default: 120
+      type: Number,
+      default: 120
     },
   },
   {

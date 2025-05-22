@@ -6,4 +6,6 @@ const certificateController = require('../controllers/CertificateController');
 
 router.post('/addCertificate', user_jwt, certificateController.addCertificate);
 
+router.post('/addUserAnswers', user_jwt, certificateController.addUserAnswers);
+
 module.exports = router;
