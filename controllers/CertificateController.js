@@ -54,6 +54,8 @@ exports.addUserAnswers = async (req, res) => {
         if (!user_id || !test_id || !Array.isArray(answers)) {
             return res.status(400).json({ msg: "Missing or invalid parameters" });
         }
+        
+        console.log("Received body:", req.body);
 
         const objectIdUser = new mongoose.Types.ObjectId(user_id);
 
