@@ -12,7 +12,7 @@ exports.addLookUpHistory = async (req, res) => {
   try {
     const { user_id, word, meaning, isTranslateEnglish, vocab_id } = req.body;
 
-    if (!user_id || !word || !meaning || typeof isTranslateEnglish !== 'boolean') {
+    if (!user_id || !word || !meaning || !isTranslateEnglish) {
       return res.status(400).json({
         msg: "user_id, word, meaning and isTranslateEnglish are required"
       });
