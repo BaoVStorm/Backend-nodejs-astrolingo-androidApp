@@ -139,23 +139,23 @@ exports.getListGroupQuestion = async (req, res) => {
 }
 
   // lấy thông tin cụ thể của 1 nhóm câu hỏi (1 GroupQuestion)
-  exports.getGroupQuestionDetail = async (req, res) => {
-    try {
-      const {group_question_id} = req.query;
+exports.getGroupQuestionDetail = async (req, res) => {
+  try {
+    const {group_question_id} = req.query;
 
-      if(!group_question_id)
-        res.status(400).json({ message: "need group_question_id to get group questions detail !" });
+    if(!group_question_id)
+      res.status(400).json({ message: "need group_question_id to get group questions detail !" });
 
-      const groupQuestion = await Group_Questions.findOne({group_question_id: group_question_id}); 
+    const groupQuestion = await Group_Questions.findOne({group_question_id: group_question_id}); 
 
-      if(!groupQuestion)
-        res.status(400).json({ message: "This groupQuestion is not exist !" });
+    if(!groupQuestion)
+      res.status(400).json({ message: "This groupQuestion is not exist !" });
 
-      res.json(groupQuestion);
-    } catch(err) {
-      res.status(500).json({ message: err.message });
-    }
+    res.json(groupQuestion);
+  } catch(err) {
+    res.status(500).json({ message: err.message });
   }
+}
 
 // lấy danh sách các câu hỏi thuộc 1 nhóm câu hỏi (list Questions in Group_Question)
 exports.getListQuestion = async (req, res) => {
@@ -207,26 +207,26 @@ exports.getListQuestion = async (req, res) => {
 }
 
   // lấy thông tin cụ thể của 1 câu hỏi (1 Question)
-  exports.getQuestionDetail = async (req, res) => {
-    try {
-      const {question_id} = req.query;
+exports.getQuestionDetail = async (req, res) => {
+  try {
+    const {question_id} = req.query;
 
-      if(!question_id)
-        res.status(400).json({ message: "need question_id to get question detail !" });
+    if(!question_id)
+      res.status(400).json({ message: "need question_id to get question detail !" });
 
-      const Question = await Questions.findOne({question_id: question_id}); 
+    const Question = await Questions.findOne({question_id: question_id}); 
 
-      if(!Question)
-        res.status(400).json({ message: "This Question is not exist !" });
+    if(!Question)
+      res.status(400).json({ message: "This Question is not exist !" });
 
-      res.json(Question);
-    } catch(err) {
-      res.status(500).json({ message: err.message });
-    }
+    res.json(Question);
+  } catch(err) {
+    res.status(500).json({ message: err.message });
   }
+}
 
-  // lấy tất cả câu hỏi của 1 test
-  exports.getListQuestionByTestId = async (req, res) => {
+// lấy tất cả câu hỏi của 1 test
+exports.getListQuestionByTestId = async (req, res) => {
   try {
     const { test_id } = req.query;
 

@@ -49,6 +49,7 @@ app.use("/api/email_verification", require("./routes/email_verification"));
 app.use("/api/forgot_password", require("./routes/forgot_password"));
 app.use("/api/test", require("./routes/test"));
 app.use("/api/certificate", require("./routes/certificates"));
+app.use("/api/look_up_history", require("./routes/UserLookupHistory"));
 
 // Chạy server
 app.listen(PORT, 
