@@ -9,5 +9,8 @@ const VocabulariesController = require('../controllers/VocabulariesController');
 // lấy tất cả các test trong database
 router.post('/getListWords', user_jwt, VocabulariesController.getListWords);
 
+router.get('/getListVocabLevels', VocabulariesController.getListVocabLevels);
+router.get('/getListVocabTopics', VocabulariesController.getListVocabTopics);
+
 
 module.exports = router;
