@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const mongoose = require('mongoose');
+const moment = require("moment-timezone");
 
 // init table
 const UserLookupHistory = require('../models/UserLookupHistory');
@@ -68,7 +69,16 @@ exports.getLookUpHistory = async (req, res) => {
 
     const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-    const listUserLookupHistory = await UserLookupHistory.find({user_id: user_id}).sort({lookup_at: -1}); // sort theo thời gian mới nhất
+    const list = await UserLookupHistory.find({user_id: user_id}).sort({lookup_at: -1}); // sort theo thời gian mới nhất
+
+    // Convert lookup_at về giờ Việt Nam
+    const listUserLookupHistory = list.map(item => {
+      const itemObject = item.toObject(); // convert Mongoose doc to plain object
+      itemObject.lookup_at_vietnam = moment(item.lookup_at)
+        .tz("Asia/Ho_Chi_Minh")
+        .format("DD/MM/YYYY | HH:mm:ss");
+      return itemObject;
+    });
 
     return res.status(200).json({
       msg: "UserLookupHistory is listed successfully",
