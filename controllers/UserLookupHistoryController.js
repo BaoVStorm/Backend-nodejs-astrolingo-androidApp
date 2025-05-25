@@ -68,9 +68,10 @@ exports.getLookUpHistory = async (req, res) => {
 
     const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-    const listUserLookupHistory = await UserLookupHistory.find({user_id: objectId_user}).sort({lookup_at: -1}); // sort theo thời gian mới nhất
+    const listUserLookupHistory = await UserLookupHistory.find({user_id: user_id}).sort({lookup_at: -1}); // sort theo thời gian mới nhất
 
     return res.status(200).json({
+      msg: "UserLookupHistory is listed successfully",
       listUserLookupHistory
     });
 
