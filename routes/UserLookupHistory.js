@@ -8,5 +8,6 @@ const UserLookupHistoryController = require('../controllers/UserLookupHistoryCon
 // ----------- function
 // lấy tất cả các test trong database
 router.post('/addLookUpHistory', user_jwt, UserLookupHistoryController.addLookUpHistory);
+router.post('/getLookUpHistory', user_jwt, UserLookupHistoryController.getLookUpHistory);
 
 module.exports = router;

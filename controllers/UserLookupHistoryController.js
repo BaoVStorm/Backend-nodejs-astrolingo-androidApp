@@ -54,3 +54,27 @@ exports.addLookUpHistory = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
+
+
+exports.getLookUpHistory = async (req, res) => {
+  try {
+    const { user_id} = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        msg: "user_id is required"
+      });
+    }
+
+    const objectId_user = new mongoose.Types.ObjectId(user_id);
+
+    const listUserLookupHistory = await UserLookupHistory.find({user_id: objectId_user}).sort({lookup_at: -1}); // sort theo thời gian mới nhất
+
+    return res.status(200).json({
+      listUserLookupHistory
+    });
+
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
