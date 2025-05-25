@@ -50,6 +50,7 @@ app.use("/api/forgot_password", require("./routes/forgot_password"));
 app.use("/api/test", require("./routes/test"));
 app.use("/api/certificate", require("./routes/certificates"));
 app.use("/api/look_up_history", require("./routes/UserLookupHistory"));
+app.use("/api/vocabulary", require("./routes/Vocabularies"));
 
 // Chạy server
 app.listen(PORT, 
