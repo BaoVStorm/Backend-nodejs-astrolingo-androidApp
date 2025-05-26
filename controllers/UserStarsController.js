@@ -52,7 +52,7 @@ exports.addWordUserStars = async (req, res) => {
 
     const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-    const data = {
+    let data = {
       user_id: objectId_user,
       type_star
     };
@@ -120,8 +120,75 @@ exports.addWordUserStars = async (req, res) => {
     const createdUserStars = await newUserStars.save();
 
     return res.status(200).json({
-      msg: "userStars are successfully",
+      msg: "userStars are created successfully",
       userStars: createdUserStars
+    });
+
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+exports.removeWordUserStars = async (req, res) => {
+  try {
+    const {user_id, type_star, user_lookup_id, vocab_id} = req.body;
+
+    if (!user_id || !type_star) {
+      return res.status(400).json({
+        msg: "user_id or type_star is required"
+      });
+    }
+
+    if(!["translate", "vocabulary", "create"].includes(type_star))
+      return res.status(400).json({
+        msg: "type must be in ['translate', 'vocabulary', 'create']"
+      });
+
+    const objectId_user = new mongoose.Types.ObjectId(user_id);
+
+    let deleteCondition = {
+      user_id: objectId_user,
+      type_star: type_star
+    };
+
+    if(type_star == "translate") {
+
+      if(!user_lookup_id)
+        return res.status(400).json({
+          msg: "with translate, user_lookup_id is required"
+        });
+
+      const ObjectId_UserLookup = new mongoose.Types.ObjectId(user_lookup_id);
+
+      deleteCondition.user_lookup_id = ObjectId_UserLookup;
+    }
+    else
+    if(type_star == "vocabulary") {
+
+      if(!vocab_id)
+        return res.status(400).json({
+          msg: "with vocabulary, vocab_id is required"
+        });
+
+      const ObjectId_Vocab = new mongoose.Types.ObjectId(vocab_id);
+
+      deleteCondition.vocab_id = ObjectId_Vocab;
+    }
+    else {
+      // deleteCondition.no = "aaa";
+    }
+
+    const result = await UserStar.deleteMany(deleteCondition);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        msg: "No matching star records found"
+      });
+    }
+
+    return res.status(200).json({
+      msg: "userStars removed successfully",
+      deletedCount: result.deletedCount
     });
 
   } catch (err) {

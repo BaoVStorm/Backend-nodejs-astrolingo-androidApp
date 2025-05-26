@@ -33,7 +33,7 @@ exports.addLookUpHistory = async (req, res) => {
     }
 
     // Step 3: Lưu bản ghi mới
-    const data = {
+    let data = {
       user_id: objectId_user,
       word,
       meaning,

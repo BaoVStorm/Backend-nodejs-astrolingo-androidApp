@@ -9,5 +9,6 @@ const VocabulariesController = require('../controllers/UserStarsController');
 // lấy tất cả các test trong database
 router.post('/getWordUserStars', VocabulariesController.getWordUserStars);
 router.post('/addWordUserStars', user_jwt, VocabulariesController.addWordUserStars);
+router.post('/removeWordUserStars', user_jwt, VocabulariesController.removeWordUserStars);
 
 module.exports = router;
