@@ -5,6 +5,7 @@ const moment = require("moment-timezone");
 
 // init table
 const UserLookupHistory = require('../models/UserLookupHistory');
+const UserStar = require('../models/UserStars');
 
 // ------------- function
 
@@ -69,14 +70,27 @@ exports.getLookUpHistory = async (req, res) => {
 
     const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-    const list = await UserLookupHistory.find({user_id: user_id}).sort({lookup_at: -1}); // sort theo thời gian mới nhất
+    // 1. Lấy lịch sử tra từ
+    const list = await UserLookupHistory.find({user_id: objectId_user}).sort({lookup_at: -1}); // sort theo thời gian mới nhất
 
-    // Convert lookup_at về giờ Việt Nam
+    // 2. Lấy danh sách user_lookup_id đã được star
+    const userStarred = await UserStar.find({ user_id: objectId_user }, 'user_lookup_id');
+
+    // 3. Tạo Set để kiểm tra nhanh
+    const starredLookupIds = new Set(
+      userStarred
+        .filter(item => item.user_lookup_id) // tránh undefined (rỗng)
+        .map(item => item.user_lookup_id.toString())
+    );
+
+    // 4. Gắn isStar + chuyển thời gian
     const listUserLookupHistory = list.map(item => {
-      const itemObject = item.toObject(); // convert Mongoose doc to plain object
+      const itemObject = item.toObject();
       itemObject.lookup_at_vietnam = moment(item.lookup_at)
         .tz("Asia/Ho_Chi_Minh")
         .format("DD/MM/YYYY | HH:mm:ss");
+
+      itemObject.isStar = starredLookupIds.has(item._id.toString()); // So sánh theo _id của UserLookupHistory
       return itemObject;
     });
 
