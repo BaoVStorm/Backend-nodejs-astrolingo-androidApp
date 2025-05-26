@@ -51,6 +51,7 @@ app.use("/api/test", require("./routes/test"));
 app.use("/api/certificate", require("./routes/certificates"));
 app.use("/api/look_up_history", require("./routes/UserLookupHistory"));
 app.use("/api/vocabulary", require("./routes/Vocabularies"));
+app.use("/api/user_star", require("./routes/UserStars"));
 
 // Chạy server
 app.listen(PORT, 
