@@ -7,30 +7,69 @@ const moment = require("moment-timezone");
 const Vocabulary = require('../models/Vocabularies');
 const VocabLevel = require('../models/VocabLevels');
 const VocabTopic = require('../models/VocabTopics');
+const UserStar = require('../models/UserStars');
 
 // ------------- function
 
+// exports.getListWords = async (req, res) => {
+//   try {
+//     const {user_id} = req.body;
+
+//     if (!user_id) {
+//       return res.status(400).json({
+//         msg: "user_id is required"
+//       });
+//     }
+
+//     const objectId_user = new mongoose.Types.ObjectId(user_id);
+
+//     const vocabularies = await Vocabulary.find().sort({topic_id: 1, level_id: 1});
+
+//     return res.status(200).json({
+//       msg: "vocabularies is listed successfully",
+//       vocabularies
+//     });
+
+//   } catch (err) {
+//     res.status(500).json({ msg: err.message });
+//   }
+// };
+
 exports.getListWords = async (req, res) => {
   try {
-    const {user_id} = req.body;
+    const { user_id } = req.body;
 
     if (!user_id) {
-      return res.status(400).json({
-        msg: "user_id is required"
-      });
+      return res.status(400).json({ msg: "user_id is required" });
     }
 
     const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-    const vocabularies = await Vocabulary.find().sort({topic_id: 1, level_id: 1});
+    // 1. Lấy tất cả vocab_id mà user đã star
+    const userStarred = await UserStar.find({ user_id: objectId_user }, "vocab_id");
+    const starredVocabIds = new Set(
+      userStarred
+        .filter(item => item.vocab_id)  // Bỏ qua các bản ghi thiếu vocab_id
+        .map(item => item.vocab_id.toString())
+    );
+
+    // 2. Lấy danh sách từ vựng
+    const vocabularies = await Vocabulary.find().sort({ topic_id: 1, level_id: 1 });
+
+    // 3. Gán isStar cho từng từ
+    const result = vocabularies.map(vocab => {
+      const vocabObj = vocab.toObject(); // Chuyển sang object để có thể thêm field mới
+      vocabObj.isStar = starredVocabIds.has(vocab._id.toString());
+      return vocabObj;
+    });
 
     return res.status(200).json({
-      msg: "vocabularies is listed successfully",
-      vocabularies
+      msg: "vocabularies listed successfully",
+      vocabularies: result
     });
 
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+    return res.status(500).json({ msg: err.message });
   }
 };
 
