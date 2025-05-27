@@ -10,5 +10,6 @@ const VocabulariesController = require('../controllers/UserStarsController');
 router.post('/getWordUserStars', VocabulariesController.getWordUserStars);
 router.post('/addWordUserStars', user_jwt, VocabulariesController.addWordUserStars);
 router.post('/removeWordUserStars', user_jwt, VocabulariesController.removeWordUserStars);
+router.post('/removeWordUserStarsById', user_jwt, VocabulariesController.removeWordUserStarsById);
 
 module.exports = router;

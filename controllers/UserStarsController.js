@@ -146,6 +146,36 @@ exports.addWordUserStars = async (req, res) => {
   }
 };
 
+exports.removeWordUserStarsById = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        msg: "id is required"
+      });
+    }
+
+    const objectId_userStars = new mongoose.Types.ObjectId(id);
+
+    const deletedUserStar = await UserStar.findByIdAndDelete(objectId_userStars);
+
+    if (!deletedUserStar) {
+      return res.status(404).json({
+        msg: "UserStar not found or already deleted"
+      });
+    }
+
+    return res.status(200).json({
+      msg: "UserStar deleted successfully",
+      deletedUserStar
+    });
+
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+}
+
 exports.removeWordUserStars = async (req, res) => {
   try {
     const {user_id, type_star, user_lookup_id, vocab_id} = req.body;
