@@ -8,4 +8,6 @@ router.post('/addCertificate', user_jwt, certificateController.addCertificate);
 
 router.post('/addUserAnswers', user_jwt, certificateController.addUserAnswers);
 
+router.get('/getCertificate', certificateController.getCertificate);
+
 module.exports = router;

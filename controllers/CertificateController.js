@@ -2,8 +2,9 @@
 const mongoose = require('mongoose');
 const Certificate = require('../models/Certificates');
 const UserAnswer = require('../models/UserAnswers');
+const moment = require("moment-timezone");
 
-// lấy danh sách các test đang có trong database
+// lấy thêm bằng (kết quả thi) của 1 bài test của người dùng
 exports.addCertificate = async (req, res) => {
   try {
     const {test_id, 
@@ -46,6 +47,35 @@ exports.addCertificate = async (req, res) => {
   }
 };
 
+exports.getCertificate = async (req, res) => {
+  try {
+    const { user_id } = req.query; 
+
+    if (!user_id)
+      return res.status(400).json({ msg: "user_id is required" });
+
+    const objectId_user = new mongoose.Types.ObjectId(user_id);
+
+    const certificates = await Certificate.find({ user_id: objectId_user });
+
+    const certificates_VietNamTime = certificates.map(item => {
+      const itemObject = item.toObject();
+      itemObject.awarded_at_vietnam = moment(item.awarded_at)
+        .tz("Asia/Ho_Chi_Minh")
+        .format("DD/MM/YYYY | HH:mm:ss");
+      
+      return itemObject;
+    });
+
+    return res.status(200).json({
+      msg: "Certificates fetched successfully",
+      certificates: certificates_VietNamTime,
+    });
+  } catch (err) {
+    console.error("Get certificate error:", err);
+    return res.status(500).json({ msg: err.message });
+  }
+};
 
 exports.addUserAnswers = async (req, res) => {
     try {
@@ -59,7 +89,7 @@ exports.addUserAnswers = async (req, res) => {
 
         const objectIdUser = new mongoose.Types.ObjectId(user_id);
 
-        // 🧹 Xoá toàn bộ câu trả lời cũ của user cho bài test này
+        // Xoá toàn bộ câu trả lời cũ của user cho bài test này
         await UserAnswer.deleteMany({
             user_id: objectIdUser,
             test_id: test_id
