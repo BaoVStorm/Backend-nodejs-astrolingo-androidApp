@@ -128,9 +128,14 @@ exports.addWordUserStars = async (req, res) => {
     const newUserStars = new UserStar(data);
     const createdUserStars = await newUserStars.save();
 
+    const itemObject = createdUserStars.toObject();
+    itemObject.starred_at_vietnam = moment(createdUserStars.starred_at)
+      .tz("Asia/Ho_Chi_Minh")
+      .format("DD/MM/YYYY | HH:mm:ss");
+
     return res.status(200).json({
       msg: "userStars are created successfully",
-      userStars: createdUserStars
+      userStars: itemObject
     });
 
   } catch (err) {
