@@ -25,9 +25,18 @@ exports.getWordUserStars = async (req, res) => {
 
     const userStars = await UserStar.find({user_id: objectId_user}).sort({type: 1, starred_at: 1});
 
+    const listUserLookupHistory_VietNamTime = userStars.map(item => {
+      const itemObject = item.toObject();
+      itemObject.starred_at_vietnam = moment(item.starred_at)
+        .tz("Asia/Ho_Chi_Minh")
+        .format("DD/MM/YYYY | HH:mm:ss");
+      
+      return itemObject;
+    });
+
     return res.status(200).json({
       msg: "userStars are listed successfully",
-      userStars
+      userStars: listUserLookupHistory_VietNamTime
     });
 
   } catch (err) {
