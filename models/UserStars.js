@@ -23,6 +23,10 @@ const userStarsSchema = new Schema({
     default: Date.now
   },
 
+  isTranslateEnglish: {
+    type: Boolean
+  },
+
   user_lookup_id: {
     type: Schema.Types.ObjectId,
     ref: 'User_Lookup_History'

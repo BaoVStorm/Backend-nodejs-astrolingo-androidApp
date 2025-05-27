@@ -46,7 +46,7 @@ exports.getWordUserStars = async (req, res) => {
 
 exports.addWordUserStars = async (req, res) => {
   try {
-    const {user_id, word, meaning, type_star, vocab_id, user_lookup_id} = req.body;
+    const {user_id, word, meaning, type_star, vocab_id, user_lookup_id, isTranslateEnglish} = req.body;
 
     if (!user_id || !type_star) {
       return res.status(400).json({
@@ -110,6 +110,9 @@ exports.addWordUserStars = async (req, res) => {
     }
     if (meaning) {
       data.meaning = meaning;
+    }
+    if (isTranslateEnglish) {
+      data.isTranslateEnglish = isTranslateEnglish;
     }
 
     if(user_lookup_id) {
