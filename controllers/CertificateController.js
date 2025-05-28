@@ -99,6 +99,7 @@ exports.addUserAnswers = async (req, res) => {
             user_id: objectIdUser,
             test_id: test_id,
             selected_answer: ans.selected_answer,
+            correct_answer: ans.correct_answer,
             is_wrong: ans.is_wrong,
             answered_at: new Date(), // hoặc có thể để mặc định
             question_number: ans.question_number,

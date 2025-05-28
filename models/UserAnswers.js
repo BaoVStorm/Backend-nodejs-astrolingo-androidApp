@@ -11,6 +11,10 @@ const UserAnswerSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    correct_answer: {
+      type: Number,
+      required: true,
+    },
     is_wrong: {
       type: Boolean,
       default: false
