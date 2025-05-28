@@ -18,14 +18,14 @@ exports.getWrongAnswers = async (req, res, next) => {
 
         if(part_id) {
             user_answers = await UserAnswer.find({
-                is_wrong: false,
+                is_wrong: true,
                 user_id: objectId_user,
                 part_id: part_id
             }).sort({ test_id: 1, question_number: 1 });
         }
         else {
             user_answers = await UserAnswer.find({
-                is_wrong: false,
+                is_wrong: true,
                 user_id: objectId_user
             }).sort({ test_id: 1, question_number: 1 });
         }
