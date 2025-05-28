@@ -11,13 +11,24 @@ const Test = require('../models/Tests');
 
 exports.getWrongAnswers = async (req, res, next) => {
     try {
-        const { user_id } = req.body;
+        const { user_id, part_id } = req.body;
         const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-        const user_answers = await UserAnswer.find({
-            is_wrong: false,
-            user_id: objectId_user
-        }).sort({ test_id: 1, question_number: 1 });
+        let user_answers;
+
+        if(part_id) {
+            user_answers = await UserAnswer.find({
+                is_wrong: false,
+                user_id: objectId_user,
+                part_id: part_id
+            }).sort({ test_id: 1, question_number: 1 });
+        }
+        else {
+            user_answers = await UserAnswer.find({
+                is_wrong: false,
+                user_id: objectId_user
+            }).sort({ test_id: 1, question_number: 1 });
+        }
 
         // Lấy danh sách test_id duy nhất (kiểu số)
         const testIds = [...new Set(user_answers.map(ans => ans.test_id))];
