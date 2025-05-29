@@ -25,11 +25,11 @@ const connectDB = require("./config/db");
 connectDB();
 
 // middleware tự tạo - chạy ở giữa request và responde
-app.use((req, res, next) => {
-    console.log("middleware ran");
-    req.title = "test use"
-    next(); // cho phép đi tiếp
-});
+// app.use((req, res, next) => {
+//     console.log("middleware ran");
+//     req.title = "test use"
+//     next(); // cho phép đi tiếp
+// });
 
 // Kích hoạt morgan với format 'dev'
 app.use(morgan('dev'));

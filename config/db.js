@@ -11,6 +11,8 @@ const connectDB = async () => {
     console.log(`MongoDB connected: ${conn.connection.host}`.cyan.bold);
 }
 
+console.log("--------- Khởi động server ---------".red.bold);
+
 module.exports = connectDB;
 
 /*
