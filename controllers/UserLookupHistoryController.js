@@ -152,6 +152,12 @@ exports.getLookupDoneByWeek = async (req, res) => {
 
 exports.getTopUsersByLookupCount = async (req, res) => {
   try {
+    let {number} = req.query;
+
+    if(!number)
+      number = 5;
+    number = Number(number);
+
     let result = await UserLookupHistory.aggregate([
       {
         $group: {
@@ -178,10 +184,42 @@ exports.getTopUsersByLookupCount = async (req, res) => {
         }
       },
       { $sort: { lookup_count: -1 } },  // sắp xếp giảm dần
-      { $limit: 5 } // nếu muốn giới hạn top 10
+      { $limit: number } // nếu muốn giới hạn top 10
     ]);
 
     return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getMostLookedUpWords = async (req, res) => {
+  try {
+    let {number} = req.query;
+
+    if(!number)
+      number = 5;
+    number = Number(number);
+
+    const result = await UserLookupHistory.aggregate([
+      {
+        $group: {
+          _id: "$word",
+          lookup_count: { $sum: 1 }
+        }
+      },
+      { $sort: { lookup_count: -1 } }, // Sắp xếp giảm dần
+      {
+        $project: {
+          _id: 0,
+          word: "$_id",
+          lookup_count: 1
+        }
+      },
+      { $limit: number } // Optional: top 10 từ được tra nhiều nhất
+    ]);
+
+    return res.json(result); // Hoặc return result nếu dùng nội bộ
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
