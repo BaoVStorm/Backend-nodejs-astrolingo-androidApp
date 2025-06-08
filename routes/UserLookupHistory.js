@@ -13,5 +13,6 @@ router.get('/getLookUpCount', UserLookupHistoryController.getLookUpCount);
 
 // admin
 router.get('/getLookupDoneByWeek', UserLookupHistoryController.getLookupDoneByWeek);
+router.get('/getTopUsersByLookupCount', UserLookupHistoryController.getTopUsersByLookupCount);
 
 module.exports = router;

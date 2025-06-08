@@ -150,3 +150,39 @@ exports.getLookupDoneByWeek = async (req, res) => {
   }
 }
 
+exports.getTopUsersByLookupCount = async (req, res) => {
+  try {
+    let result = await UserLookupHistory.aggregate([
+      {
+        $group: {
+          _id: "$user_id",
+          lookup_count: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: "users", // tên collection gốc trong MongoDB
+          localField: "_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: "$user" },
+
+      {
+        $project: {
+          _id: 0,
+          email: "$user.email",
+          full_name: "$user.full_name",
+          lookup_count: 1
+        }
+      },
+      { $sort: { lookup_count: -1 } },  // sắp xếp giảm dần
+      { $limit: 5 } // nếu muốn giới hạn top 10
+    ]);
+
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
