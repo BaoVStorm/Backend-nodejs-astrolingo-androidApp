@@ -23,7 +23,7 @@ exports.getWordUserStars = async (req, res) => {
 
     const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-    const userStars = await UserStar.find({user_id: objectId_user}).sort({type: 1, starred_at: 1});
+    const userStars = await UserStar.find({user_id: objectId_user}).sort({type: 1, starred_at: -1});
 
     const listUserLookupHistory_VietNamTime = userStars.map(item => {
       const itemObject = item.toObject();
@@ -242,3 +242,48 @@ exports.removeWordUserStars = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
+
+exports.getUserStarCount = async (req, res) => {
+  try {
+    userStarCount = await UserStar.countDocuments();
+    res.json(userStarCount);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+exports.getUserStarCountByWeek = async (req, res) => {
+  try {
+    const result = await UserStar.aggregate([
+      {
+        $group: {
+          _id: { $dayOfWeek: "$starred_at" }, // 1 = Sunday, 2 = Monday, ..., 7 = Saturday
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          day: "$_id",
+          count: 1
+        }
+      }
+    ]);
+
+    // Tạo mảng 7 phần tử, khởi tạo bằng 0
+    const testCounts = Array(7).fill(0);
+
+    // Gán số lượng test tương ứng vào từng thứ (Chuyển dayOfWeek Mongo sang [Mon=0, ..., Sun=6])
+    result.forEach(item => {
+      const mongoDay = item.day; // 1=Sun, 2=Mon, ..., 7=Sat
+      const jsDayIndex = (mongoDay + 5) % 7; // chuyển về index JS [Mon=0,...,Sun=6]
+      testCounts[jsDayIndex] = item.count;
+    });
+
+    return res.status(200).json(testCounts);// [Mon, Tue, Wed, ..., Sun]
+
+  } catch (err) {
+    console.error("Error saving answers:", err);
+    return res.status(500).json({ msg: "Server error", error: err.message });
+  }
+}

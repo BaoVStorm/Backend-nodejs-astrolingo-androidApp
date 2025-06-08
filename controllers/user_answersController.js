@@ -71,3 +71,93 @@ exports.getWrongAnswers = async (req, res, next) => {
         next();
     }
 };
+
+exports.getWrongPercent = async (req, res, next) => {
+    try {
+        const result = await UserAnswer.aggregate([
+            {
+                $group: {
+                _id: null,
+                total: { $sum: 1 },
+                wrong: {
+                    $sum: {
+                    $cond: [{ $eq: ["$is_wrong", true] }, 1, 0]
+                    }
+                }
+                }
+            },
+            {
+                $project: {
+                _id: 0,
+                total: 1,
+                wrong: 1,
+                wrongPercentage: {
+                    $cond: [
+                    { $eq: ["$total", 0] },
+                    0,
+                    { $multiply: [{ $divide: ["$wrong", "$total"] }, 100] }
+                    ]
+                }
+                }
+            }
+            ]);
+
+            if(result.length > 0)
+                return res.status(200).json(result[0].wrongPercentage.toFixed(2));
+
+            return res.status(200).json(0);
+
+    }  catch (err) {
+        console.error(err.message);
+        res.status(500).json({
+            success: false,
+            msg: 'Server Error'
+        });
+        next();
+    }
+}
+
+exports.getCorrectPercent = async (req, res, next) => {
+    try {
+        const result = await UserAnswer.aggregate([
+            {
+                $group: {
+                _id: null,
+                total: { $sum: 1 },
+                wrong: {
+                    $sum: {
+                    $cond: [{ $eq: ["$is_wrong", true] }, 1, 0]
+                    }
+                }
+                }
+            },
+            {
+                $project: {
+                _id: 0,
+                total: 1,
+                wrong: 1,
+                wrongPercentage: {
+                    $cond: [
+                    { $eq: ["$total", 0] },
+                    0,
+                    { $multiply: [{ $divide: ["$wrong", "$total"] }, 100] }
+                    ]
+                }
+                }
+            }
+            ]);
+
+            if(result.length > 0)
+                return res.status(200).json((100 - result[0].wrongPercentage).toFixed(2));
+
+            return res.status(200).json(0);
+
+    }  catch (err) {
+        console.error(err.message);
+        res.status(500).json({
+            success: false,
+            msg: 'Server Error'
+        });
+        next();
+    }
+}

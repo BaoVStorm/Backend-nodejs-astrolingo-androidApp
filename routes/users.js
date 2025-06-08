@@ -21,6 +21,8 @@ router.get('/logout', user_jwt, userController.logout);
 // ----------- function
 // Lấy top 5 user theo score giảm dần
 router.get('/getTopScore', user_jwt, userController.getTopUsersByScore);
+router.get('/getTopScoreByScore', userController.getTopUsersByScore);
 
+router.get('/getUserCount', userController.getUserCount)
 
 module.exports = router;

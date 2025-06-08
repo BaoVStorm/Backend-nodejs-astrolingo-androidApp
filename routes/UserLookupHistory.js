@@ -9,5 +9,9 @@ const UserLookupHistoryController = require('../controllers/UserLookupHistoryCon
 // lấy tất cả các test trong database
 router.post('/addLookUpHistory', user_jwt, UserLookupHistoryController.addLookUpHistory);
 router.post('/getLookUpHistory', user_jwt, UserLookupHistoryController.getLookUpHistory);
+router.get('/getLookUpCount', UserLookupHistoryController.getLookUpCount);
+
+// admin
+router.get('/getLookupDoneByWeek', UserLookupHistoryController.getLookupDoneByWeek);
 
 module.exports = router;

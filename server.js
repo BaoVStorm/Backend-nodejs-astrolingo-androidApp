@@ -3,6 +3,8 @@ const express = require("express");
     // Tạo một đối tượng Express – đại diện cho ứng dụng
     const app = express();
 
+const cors = require('cors');
+
 // Dùng để đổi màu chữ khi log ra console. <<<Ko ảnh hưởng đến app>>>
 const colors = require("colors");
 
@@ -19,7 +21,7 @@ const dotenv = require('dotenv');
     });
 
     const PORT = process.env.PORT || 3000;
- 
+    
 // Kết nối tới MongoDB
 const connectDB = require("./config/db");
 connectDB();
@@ -38,6 +40,8 @@ app.use(morgan('dev'));
 app.use(express.json({}));
 // Middleware đọc form-urlencoded từ req.body
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cors());
 
 // Đăng ký route http://localhost:3000/api/auth/register
 app.use("/api/auth", require("./routes/users"));

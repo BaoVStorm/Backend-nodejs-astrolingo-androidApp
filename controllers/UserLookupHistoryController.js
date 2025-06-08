@@ -103,3 +103,50 @@ exports.getLookUpHistory = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
+
+
+exports.getLookUpCount = async (req, res) => {
+  try {
+    userLookupCount = await UserLookupHistory.countDocuments();
+    res.json(userLookupCount);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+exports.getLookupDoneByWeek = async (req, res) => {
+  try {
+    const result = await UserLookupHistory.aggregate([
+      {
+        $group: {
+          _id: { $dayOfWeek: "$lookup_at" }, // 1 = Sunday, 2 = Monday, ..., 7 = Saturday
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          day: "$_id",
+          count: 1
+        }
+      }
+    ]);
+
+    // Tạo mảng 7 phần tử, khởi tạo bằng 0
+    const testCounts = Array(7).fill(0);
+
+    // Gán số lượng test tương ứng vào từng thứ (Chuyển dayOfWeek Mongo sang [Mon=0, ..., Sun=6])
+    result.forEach(item => {
+      const mongoDay = item.day; // 1=Sun, 2=Mon, ..., 7=Sat
+      const jsDayIndex = (mongoDay + 5) % 7; // chuyển về index JS [Mon=0,...,Sun=6]
+      testCounts[jsDayIndex] = item.count;
+    });
+
+    return res.status(200).json(testCounts);// [Mon, Tue, Wed, ..., Sun]
+
+  } catch (err) {
+    console.error("Error saving answers:", err);
+    return res.status(500).json({ msg: "Server error", error: err.message });
+  }
+}
+

@@ -12,4 +12,9 @@ router.post('/addWordUserStars', user_jwt, VocabulariesController.addWordUserSta
 router.post('/removeWordUserStars', user_jwt, VocabulariesController.removeWordUserStars);
 router.post('/removeWordUserStarsById', user_jwt, VocabulariesController.removeWordUserStarsById);
 
+router.get('/getUserStarCount', VocabulariesController.getUserStarCount);
+
+// admin
+router.get('/getUserStarCountByWeek', VocabulariesController.getUserStarCountByWeek);
+
 module.exports = router;
