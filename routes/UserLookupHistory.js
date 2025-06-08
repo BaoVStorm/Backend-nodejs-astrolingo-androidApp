@@ -15,5 +15,6 @@ router.get('/getLookUpCount', UserLookupHistoryController.getLookUpCount);
 router.get('/getLookupDoneByWeek', UserLookupHistoryController.getLookupDoneByWeek);
 router.get('/getTopUsersByLookupCount', UserLookupHistoryController.getTopUsersByLookupCount);
 router.get('/getMostLookedUpWords', UserLookupHistoryController.getMostLookedUpWords);
+router.get('/getAllLookupHistorySorted', UserLookupHistoryController.getAllLookupHistorySorted);
 
 module.exports = router;

@@ -219,7 +219,39 @@ exports.getMostLookedUpWords = async (req, res) => {
       { $limit: number } // Optional: top 10 từ được tra nhiều nhất
     ]);
 
-    return res.json(result); // Hoặc return result nếu dùng nội bộ
+    return res.status(200).json(result); // Hoặc return result nếu dùng nội bộ
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+
+exports.getAllLookupHistorySorted = async (req, res) => {
+  try {
+    let {number} = req.query;
+
+    if(!number)
+      number = 5;
+    number = Number(number);
+
+    const result = await UserLookupHistory.aggregate([
+      {
+        $addFields: {
+          lookup_at_formatted: {
+            $dateToString: {
+              format: "%d-%m-%Y | %H:%M:%S",
+              date: "$lookup_at",
+              timezone: "Asia/Ho_Chi_Minh"
+            }
+          }
+        }
+      },
+      { $sort: { lookup_at: -1 } }, // Sắp xếp thời gian gần nhất trước
+      { $limit: number } 
+    ]);
+
+
+    return res.status(200).json(result);
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
