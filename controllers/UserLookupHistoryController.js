@@ -228,13 +228,24 @@ exports.getMostLookedUpWords = async (req, res) => {
 
 exports.getAllLookupHistorySorted = async (req, res) => {
   try {
-    let {number} = req.query;
+    let { number } = req.query;
 
-    if(!number)
-      number = 5;
+    if (!number) number = 5;
     number = Number(number);
 
     const result = await UserLookupHistory.aggregate([
+      // Join sang bảng users để lấy email
+      {
+        $lookup: {
+          from: "users",               // tên collection MongoDB (viết thường, số nhiều)
+          localField: "user_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: "$user" }, // bóc tách user từ mảng
+
+      // Thêm trường thời gian định dạng theo giờ VN
       {
         $addFields: {
           lookup_at_formatted: {
@@ -246,10 +257,20 @@ exports.getAllLookupHistorySorted = async (req, res) => {
           }
         }
       },
-      { $sort: { lookup_at: -1 } }, // Sắp xếp thời gian gần nhất trước
-      { $limit: number } 
+      { $sort: { lookup_at: -1 } }, // sắp xếp mới nhất
+      { $limit: number },
+      // Chọn các trường cần hiển thị
+      {
+        $project: {
+          _id: 0,
+          word: 1,
+          meaning: 1,
+          isTranslateEnglish: 1,
+          lookup_at_formatted: 1,
+          email: "$user.email"
+        }
+      }
     ]);
-
 
     return res.status(200).json(result);
   } catch (err) {

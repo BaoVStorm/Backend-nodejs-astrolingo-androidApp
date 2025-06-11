@@ -14,4 +14,11 @@ router.get('/getCertificate', certificateController.getCertificate);
 router.get('/getCertificateDoneByWeek', certificateController.getCertificateDoneByWeek);
 router.get('/getTop10LastestCertificates', certificateController.getTop10LastestCertificates);
 
+router.get('/getCertificateCount', certificateController.getCertificateCount);
+router.get('/getTestPassRate', certificateController.getTestPassRate);
+router.get('/getMostFailedTest', certificateController.getMostFailedTest);
+router.get('/getTopUsersByTotalScore', certificateController.getTopUsersByTotalScore);
+router.get('/getTestCorrectPercentage', certificateController.getTestCorrectPercentage);
+router.get('/getTestCountsByFullTest', certificateController.getTestCountsByFullTest);
+
 module.exports = router;

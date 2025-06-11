@@ -58,6 +58,8 @@ app.use("/api/vocabulary", require("./routes/Vocabularies"));
 app.use("/api/user_star", require("./routes/UserStars"));
 app.use("/api/user_answers", require("./routes/user_answers"));
 
+app.use("/api/admin", require("./routes/admin"));
+
 // Chạy server
 app.listen(PORT, 
     console.log(`Server running on port: ${PORT}`.blue.underline.bold)

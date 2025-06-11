@@ -56,7 +56,7 @@ exports.getCertificate = async (req, res) => {
 
     const objectId_user = new mongoose.Types.ObjectId(user_id);
 
-    const certificates = await Certificate.find({ user_id: objectId_user });
+    const certificates = await Certificate.find({ user_id: objectId_user }).sort({ awarded_at: -1 });
 
     const certificates_VietNamTime = certificates.map(item => {
       const itemObject = item.toObject();
@@ -160,6 +160,8 @@ exports.getCertificateDoneByWeek = async (req, res) => {
 
 exports.getTop10LastestCertificates = async (req, res) => {
   try {
+    const limit = parseInt(req.query.limit) || 10;
+
     const result = await Certificate.aggregate([
       // Join với bảng User để lấy email
       {
@@ -201,7 +203,7 @@ exports.getTop10LastestCertificates = async (req, res) => {
       { $sort: { awarded_at: -1 } },
 
       // Lấy 10 bản ghi gần nhất
-      { $limit: 10 },
+      { $limit: limit },
 
       // Chỉ lấy các trường cần thiết
       {
@@ -225,5 +227,240 @@ exports.getTop10LastestCertificates = async (req, res) => {
   } catch (err) {
     console.error("Error saving answers:", err);
     return res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
+
+
+exports.getCertificateCount = async (req, res) => {
+  try {
+    const certificateCount = await Certificate.countDocuments();
+    res.json(certificateCount);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+exports.getTestPassRate = async (req, res) => {
+  try {
+    const totalCount = await Certificate.countDocuments();
+    const passedCount = await Certificate.countDocuments({
+      $expr: { $gte: ["$correct_count", "$wrong_count"] }
+    });
+
+    const passRate = totalCount === 0 ? 0 : (passedCount / totalCount) * 100;
+
+    return res.status(200).json(passRate.toFixed(2));
+
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+exports.getMostFailedTest = async (req, res) => {
+  try {
+    const result = await Certificate.aggregate([
+      {
+        $match: {
+          $expr: { $lt: ["$correct_count", "$wrong_count"] }
+        }
+      },
+      {
+        $group: {
+          _id: "$certificate_name",
+          failed_count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { failed_count: -1 }
+      },
+      {
+        $limit: 1
+      }
+    ]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ msg: "No failed tests found" });
+    }
+
+    return res.status(200).json({
+      msg: "Most failed test retrieved successfully",
+      certificate_name: result[0]._id,
+      failed_count: result[0].failed_count
+    });
+
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+exports.getTopUsersByTotalScore = async (req, res) => {
+  try {
+    let { number } = req.query;
+    if (!number) number = 10;
+    number = Number(number);
+
+    const result = await Certificate.aggregate([
+      {
+        $group: {
+          _id: "$user_id",
+          total_score: { $sum: "$total_score" }
+        }
+      },
+      {
+        $lookup: {
+          from: "users", // tên collection gốc
+          localField: "_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 0,
+          user_id: "$_id",
+          full_name: "$user.full_name",
+          email: "$user.email",
+          total_score: 1
+        }
+      },
+      { $sort: { total_score: -1 } },
+      { $limit: number }
+    ]);
+
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getTestCorrectPercentage = async (req, res) => {
+  try {
+    const result = await Certificate.aggregate([
+      {
+        $project: {
+          test_id: 1,
+          certificate_name: 1,
+          correct_count: 1,
+          wrong_count: 1,
+          total_count: { $add: ["$correct_count", "$wrong_count"] },
+          percentage: {
+            $cond: {
+              if: { $eq: [{ $add: ["$correct_count", "$wrong_count"] }, 0] },
+              then: 0,
+              else: { $multiply: [{ $divide: ["$correct_count", { $add: ["$correct_count", "$wrong_count"] }] }, 100] }
+            }
+          }
+        }
+      },
+      {
+        $bucket: {
+          groupBy: "$percentage",
+          boundaries: [0, 20, 40, 60, 80, 100],
+          default: "Other",
+          output: {
+            count: { $sum: 1 }
+          }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Tạo các nhóm điểm mặc định (nếu không có kết quả cho nhóm)
+    const bucketData = [
+      { _id: 0, count: 0 },
+      { _id: 20, count: 0 },
+      { _id: 40, count: 0 },
+      { _id: 60, count: 0 },
+      { _id: 80, count: 0 },
+    ];
+
+    // Gộp kết quả từ MongoDB vào nhóm mặc định
+    result.forEach(item => {
+      const index = bucketData.findIndex(bucket => bucket._id === item._id);
+      if (index >= 0) {
+        bucketData[index].count = item.count;
+      }
+    });
+
+    // Trả về chỉ mảng các count
+    const counts = bucketData.map(item => item.count);
+
+    return res.status(200).json(counts);
+
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+exports.getTestCountsByFullTest = async (req, res) => {
+  try {
+    const result = await Certificate.aggregate([
+      // Liên kết với bảng `Test` dựa trên `test_id` từ cả hai bảng
+      {
+        $lookup: {
+          from: "tests",  // Tên collection trong MongoDB
+          localField: "test_id",  // Trường test_id trong bảng Certificate
+          foreignField: "test_id", // Trường test_id trong bảng Test
+          as: "test_info"
+        }
+      },
+
+      // Đếm số lượng FullTest (is_full_test: true) và MiniTest (is_full_test: false)
+      {
+        $addFields: {
+          fulltest_count: {
+            $size: {
+              $filter: {
+                input: "$test_info",  // Lọc trong test_info
+                as: "certificate",
+                cond: { $eq: ["$$certificate.is_full_test", true] }
+              }
+            }
+          },
+          minitest_count: {
+            $size: {
+              $filter: {
+                input: "$test_info",
+                as: "certificate",
+                cond: { $eq: ["$$certificate.is_full_test", false] }
+              }
+            }
+          }
+        }
+      },
+
+      // Chỉ lấy thông tin cần thiết (test_id, tên bài kiểm tra, và số lượng FullTest/MiniTest)
+      {
+        $project: {
+          _id: 0,
+          test_id: 1,
+          test_name: "$test_info.title", // Nếu bạn muốn hiển thị tên bài kiểm tra từ bảng Test
+          is_full_test: "$fulltest_count",
+          not_is_full_test: "$minitest_count"
+        }
+      },
+
+      // Sắp xếp theo tên bài kiểm tra (test_name)
+      { $sort: { test_name: 1 } }
+    ]);
+
+    // Tính tổng số lượng FullTest và MiniTest
+    let totalFullTest = 0;
+    let totalMiniTest = 0;
+
+    result.forEach(item => {
+      totalFullTest += item.is_full_test;
+      totalMiniTest += item.not_is_full_test;
+    });
+
+    return res.status(200).json({
+      is_full_test: totalFullTest,
+      not_is_full_test: totalMiniTest,
+      total: totalFullTest + totalMiniTest
+    });
+
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
   }
 };

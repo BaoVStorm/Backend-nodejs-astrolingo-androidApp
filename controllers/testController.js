@@ -272,3 +272,94 @@ exports.getListQuestionByTestId = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+exports.getTestAttemptCounts = async (req, res) => {
+  try {
+    const result = await Tests.aggregate([
+      {
+        $lookup: {
+          from: "certificates",          // bảng certificates
+          localField: "test_id",         // trường từ bảng tests
+          foreignField: "test_id",       // trường trong certificates
+          as: "certificates"
+        }
+      },
+      {
+        $addFields: {
+          attempt_count: { $size: "$certificates" } // đếm số chứng chỉ liên quan
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          test_id: 1,
+          title: 1,
+          attempt_count: 1,
+          test_time: 1,
+          question_number: 1,
+          part_number: 1,
+          is_full_test: 1
+        }
+      },
+      {
+        $sort: { is_full_test: -1, title: 1 } // sắp xếp theo tên bài test
+      }
+    ]);
+
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+// exports.addVocabulary = async (req, res) => {
+//   try {
+//     const {
+//       word,
+//       type,
+//       pronunciation,
+//       meaning_vietnamese,
+//       meaning_english,
+//       example_vietnamese,
+//       example_english,
+//       image_url,
+//       audio_url,
+//       topic_id,
+//       level_id
+//     } = req.body;
+
+//     // Kiểm tra bắt buộc
+//     if (!word || !type) {
+//       return res.status(400).json({ msg: "Thiếu từ vựng hoặc loại từ (word, type)" });
+//     }
+
+//     // Kiểm tra từ đã tồn tại
+//     const exists = await Vocabulary.findOne({ word: word.trim().toLowerCase(), type });
+//     if (exists) {
+//       return res.status(409).json({ msg: "Từ vựng này đã tồn tại trong hệ thống!" });
+//     }
+
+//     const newVocab = new Vocabulary({
+//       word: word.trim().toLowerCase(),
+//       type,
+//       pronunciation,
+//       meaning_vietnamese,
+//       meaning_english,
+//       example_vietnamese,
+//       example_english,
+//       image_url,
+//       audio_url,
+//       topic_id,
+//       level_id
+//     });
+
+//     await newVocab.save();
+
+//     return res.status(200).json({ msg: "Thêm từ vựng thành công", vocab: newVocab });
+
+//   } catch (err) {
+//     console.error("Error adding vocab:", err.message);
+//     return res.status(500).json({ msg: "Lỗi server khi thêm từ vựng" });
+//   }
+// };
