@@ -57,6 +57,7 @@ app.use("/api/look_up_history", require("./routes/UserLookupHistory"));
 app.use("/api/vocabulary", require("./routes/Vocabularies"));
 app.use("/api/user_star", require("./routes/UserStars"));
 app.use("/api/user_answers", require("./routes/user_answers"));
+app.use("/api/score", require("./routes/Score"));
 
 app.use("/api/admin", require("./routes/admin"));
 
