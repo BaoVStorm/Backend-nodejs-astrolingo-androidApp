@@ -407,3 +407,60 @@ exports.getUserCount = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+// -------------------------
+
+// Update user information (full_name, phone_number, gender)
+exports.updateUserInfo = async (req, res) => {
+  try {
+    const { user_id, full_name, phone_number, gender } = req.body;
+
+    // Kiểm tra xem user_id có tồn tại không
+    if (!user_id) {
+      return res.status(400).json({ msg: "User ID is required" });
+    }
+
+    // Kiểm tra dữ liệu đầu vào
+    if (full_name && full_name.length > 100) {
+      return res.status(400).json({ msg: "Full name is too long" });
+    }
+
+    if (phone_number && phone_number.length > 15) {
+      return res.status(400).json({ msg: "Phone number is too long" });
+    }
+
+    if (gender && !["Male", "Female", "Other"].includes(gender)) {
+      return res.status(400).json({ msg: "Invalid gender value" });
+    }
+
+    // Tìm người dùng bằng user_id
+    const user = await Users.findById(user_id);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Cập nhật thông tin
+    if (full_name) user.full_name = full_name;
+    if (phone_number) user.phone_number = phone_number;
+    if (gender) user.gender = gender;
+
+    // Lưu thông tin đã cập nhật
+    await user.save();
+
+    // Trả về thông tin đã cập nhật
+    return res.status(200).json({
+      msg: "User information updated successfully",
+      user: {
+        user_id: user._id,
+        full_name: user.full_name,
+        phone_number: user.phone_number,
+        gender: user.gender
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: err.message });
+  }
+};

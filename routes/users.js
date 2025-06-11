@@ -25,4 +25,7 @@ router.get('/getTopScoreByScore', userController.getTopUsersByScore);
 
 router.get('/getUserCount', userController.getUserCount)
 
+router.post('/updateUserInfo', userController.updateUserInfo)
+
+
 module.exports = router;
